@@ -1,0 +1,13 @@
+<h1>Admin </h1>
+
+<ul class="list-group">
+	<li class="list-group-item active">
+		Users
+	</li>
+	<li class="list-group-item" ng-repeat="user in model.users">
+	{{user.username}}
+	<input ng-model="user.roles" class="form-control" type="text"/><br><br>
+	<button ng-click="model.deleteUser(user)" class="btn btn-danger btn-block">Delete</button>
+	
+	</li>
+</ul>

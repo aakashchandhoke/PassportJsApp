@@ -7,7 +7,7 @@ app.controller('RegisterCtrl', function($scope, $http, $location,$rootScope)
          $http.post('/register', user)
         .success(function(response)
         {
-            console.log(response);
+            console.log(response.user);
             $rootScope.currentUser=response;
             $location.url("/profile");
         });

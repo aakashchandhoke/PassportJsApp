@@ -22,15 +22,20 @@ app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
 
 var userSchema= new mongoose.Schema({
-    username: String,
-    password: String,
+    username: {type : String , required :true},
+    password: {type : String, required : true},
     firstName: String,
     lastName: String,
     email: String,
-    roles:[String]
+    roles:{type: String, enum: ['STUDENT','FACULTY','ADMIN','USER'], default: 'USER'}
 });
 
 var userModel= mongoose.model("userModel",userSchema);
+userModel.createUser=createUser;
+userModel.findUserById=findUserById;
+userModel.findUserByCredentials=findUserByCredentials;
+//userModel.findAllUsers=findAllUsers;
+module.export=userModel;
 
 /*var aakash=new userModel({
     username: 'aakash',
@@ -72,9 +77,30 @@ var auth = function(req, res, next)
         next();
 };
 
+/*function findAllUsers(){
+    return userModel.find();    
+}*/
+
+function findUserByCredentials(username,password){
+    return userModel.findOne({username:username,password:password});
+}
+
+function findUserById(id){
+    return userModel.findById(id);
+}
+
+function createUser(user){
+ return userModel.create(user);
+}
+
 app.get('/loggedin', function(req, res)
 {
     res.send(req.isAuthenticated() ? req.user : '0');
+});
+
+app.get('/isAdmin', function(req, res)
+{
+    res.send(req.isAuthenticated() && req.user.roles=='ADMIN' ? req.user : '0');
 });
     
 app.post('/login', passport.authenticate('local'), function(req, res)
@@ -90,7 +116,6 @@ app.post('/logout', function(req, res)
 
 app.post('/register',function(req,res){
     var newUser=new userModel(req.body);
-    newUser.roles=['student'];
     newUser.save(function(err,user){
         req.login(user,function(err,user){
             if(err){
@@ -100,5 +125,52 @@ app.post('/register',function(req,res){
         });
     });
 }); 
+
+//Admin Functions
+
+//Getting users by admin
+app.get('/admin/user',function(req,res){
+    if(req.user && req.user.roles=='ADMIN')
+    {
+        userModel.find()
+        .then(function(user){
+            res.json(user);
+        });
+    }
+    else
+    {
+        res.send(401);
+    }
+});
+
+//unregistering users
+app.delete('/user/:userId',function(req,res){
+    //if(req.user && req.user._id==req.params.userId)
+   // {
+        userModel.remove({_id:req.user._id})
+        .then(function(user){
+            res.send(200);
+        });
+    /*}
+    else
+    {
+        res.send(401);
+    }*/
+});
+
+//deleting from admin
+app.delete('/admin/user/:userId',function(req,res){
+    if(req.user && req.user.roles=='ADMIN')
+    {
+        userModel.remove({_id:req.params.userId})
+        .then(function(user){
+            res.json(user);
+        });
+    }
+    else
+    {
+        res.send(401);
+    }
+});
 
 app.listen(3000);

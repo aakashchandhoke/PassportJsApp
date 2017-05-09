@@ -1,5 +1,8 @@
-<h1>Profile</h1>
+<h1>Profile
 
+<button class="btn btn-danger" ng-click="model.unRegister(model.currentUser._id)">Unregister</button>
 
-{{currentUser}}
-<br/>
+<a href="#admin" ng-if="currentUser.roles=='ADMIN'" class="btn btn-warning">ADMIN</a>
+
+</h1>
+{{model.currentUser}}

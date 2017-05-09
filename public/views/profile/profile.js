@@ -1,11 +1,16 @@
-/*app.controller('AdminCtrl', function($scope, $http, $location)
-{    
-    $scope.logout = function()
-    {
-        $http.post('/logout')
-        .success(function(response)
-        {
-            $location.path("/");
-        });
-    }
-});*/
+angular.module('PassportApp')
+	.controller('ProfileCtrl', profileCtrl);
+
+	function profileCtrl($scope,$http,$location){
+		var model=this;
+		model.unRegister=unRegister;
+
+
+		function unRegister(userId){
+			return $http.delete('/user/'+userId)
+				.then(function(){
+					$location.url('/login');
+				});
+
+		}
+	}

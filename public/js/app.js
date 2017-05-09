@@ -4,11 +4,11 @@ app.config(function($routeProvider, $httpProvider){
     $routeProvider
         .when('/', {
             templateUrl: '/views/home/home.html',
-           // controller: 'MainCtrl',
         })
         .when('/profile', {
             templateUrl: 'views/profile/profile.html',
-           // controller: 'AdminCtrl',
+            controller: 'ProfileCtrl',
+            controllerAs: 'model',
             resolve: {
                  loggedin: checkLoggedin
             }
@@ -20,6 +20,14 @@ app.config(function($routeProvider, $httpProvider){
         .when('/register', {
             templateUrl: 'views/register/register.html',
             controller: 'RegisterCtrl'
+        })
+        .when('/admin', {
+            templateUrl: 'views/admin/admin.html',
+            controller: 'AdminCtrl',
+            controllerAs: 'model',
+            resolve: {
+                 loggedin: isAdmin
+            }
         })
         .otherwise({
             redirectTo: '/'
@@ -60,6 +68,28 @@ var checkLoggedin = function($q, $timeout, $http, $location, $rootScope)
             $rootScope.errorMessage = 'You need to log in.';
             deferred.reject();
             $location.url('/login');
+        }
+    });
+    
+    return deferred.promise;
+};
+
+var isAdmin = function($q, $timeout, $http, $location, $rootScope)
+{
+    var deferred = $q.defer();
+
+    $http.get('/isAdmin').success(function(user)
+    {
+        $rootScope.errorMessage = null;
+        // User is Authenticated
+        if (user !== '0')
+            deferred.resolve();
+        // User is Not Authenticated
+        else
+        {
+            $rootScope.errorMessage = 'You are not an admin.';
+            deferred.reject();
+            $location.url('/profile');
         }
     });
     
