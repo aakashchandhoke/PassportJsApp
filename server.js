@@ -34,7 +34,7 @@ var userModel= mongoose.model("userModel",userSchema);
 userModel.createUser=createUser;
 userModel.findUserById=findUserById;
 userModel.findUserByCredentials=findUserByCredentials;
-//userModel.findAllUsers=findAllUsers;
+userModel.updateUser=updateUser;
 module.export=userModel;
 
 /*var aakash=new userModel({
@@ -47,6 +47,10 @@ module.export=userModel;
 });
 
 aakash.save();*/
+
+function updateUser(userId,user){
+    return userModel.update({_id: userId},{$set : user});
+}
 
 passport.use(new LocalStrategy(
 function(username, password, done)
@@ -128,6 +132,14 @@ app.post('/register',function(req,res){
 
 //Admin Functions
 
+function checkAdmin(req,res,next){
+    if(req.user && req.user.roles=='ADMIN'){
+        next();
+    }
+    else{
+        res.send(401);
+    }
+}
 //Getting users by admin
 app.get('/admin/user',function(req,res){
     if(req.user && req.user.roles=='ADMIN')
@@ -135,6 +147,21 @@ app.get('/admin/user',function(req,res){
         userModel.find()
         .then(function(user){
             res.json(user);
+        });
+    }
+    else
+    {
+        res.send(401);
+    }
+});
+
+
+app.put('/admin/user/:userId',function(req,res){
+    if(req.user && req.user.roles=='ADMIN')
+    {
+        userModel.updateUser(req.params.userId,req.body)
+        .then(function(status){
+            res.send(status);
         });
     }
     else

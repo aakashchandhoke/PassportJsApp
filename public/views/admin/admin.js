@@ -4,6 +4,7 @@ angular.module('PassportApp')
 	function adminCtrl($scope,$http){
 		var model=this;
 		model.deleteUser=deleteUser;
+		model.updateUser=updateUser;
 
 		findAllUsers()
 			.then(renderAllUsers);
@@ -16,6 +17,10 @@ angular.module('PassportApp')
 				});
 		}
 			
+		function updateUser(user){
+			return $http.put('/admin/user/'+user._id,user)
+				.then(findAllUsers);
+		}
 
 		function deleteUser(user){
 			return $http.delete('/admin/user/'+user._id)
